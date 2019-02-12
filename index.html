@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Socket IO Example</title>
+</head>
+<style>
+    #messages { list-style-type: none; margin:0;padding: 0; }
+    #messages li{padding:5px 10px;}
+    form input {border:1px solid black;padding:10px;width:90%;}
+    form { padding: 3px; position: fixed; bottom: 0; width: 100%; }
+    form button{background:#293ceb;color:white;font-size: 15px;padding:10px;border:1px solid #293cec;cursor: pointer;}
+
+</style>
+<body>
+
+    <ul id="messages"></ul>
+    <form action="" onsubmit="return false">
+        <input type='name' id='n' style="width:10%;" placeholder="UserName" onchange="getName()" />
+        
+        <input id="m" autocomplete="off" placeholder="Enter Message...."/>
+        <button onclick="sendMessage()">Send</button>
+    </form>
+    
+</body>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    var socket=io();
+    var name="Anonymous";
+    function sendMessage(){
+        var inputfield=document.getElementById('m');
+        var text=inputfield.value;
+        socket.emit('chat message',[name,text]);
+        inputfield.value="";
+    }
+
+    function getName(){
+        var nameField=document.getElementById('n');
+        if(nameField.value=='')
+        {
+            name="Anonymous";
+        }
+        else{
+            var prevName=name;
+            name=nameField.value;
+            socket.emit('name change',[prevName,name]);
+        }
+        
+    }
+
+    socket.on('chat message',function(msg){
+        let li=document.createElement('li');
+        li.innerText=msg[0]+':'+msg[1];
+        document.getElementById('messages').appendChild(li);
+    });
+
+    socket.on('name change',function(arr){
+        let li=document.createElement('li');
+        li.innerText=arr[0]+' changed name to '+arr[1];
+        document.getElementById('messages').appendChild(li);
+    });
+
+</script>
+
+
+</html>
